@@ -1,6 +1,7 @@
 (() => {
     "use strict";
     const station = "https://streaming.live365.com/a54490";
+    const minimumScale = 0.25;
     const retryDelays = [2000, 5000, 10000];
     const selector = 'bs-snippet[name="mr-block-party-radio-player"]';
 
@@ -27,7 +28,7 @@
 
     async function mount(element) {
         const scene = BS.Scene.GetInstance();
-        const defaultScale = number(element.getAttribute("scale"), 1, 0.5, 1);
+        const defaultScale = number(element.getAttribute("scale"), 1, minimumScale, 1);
         async function component(object, type, name) {
             if (!object) throw new Error("Missing object " + name);
             const result = await object.GetComponentAsync(type);
@@ -160,7 +161,7 @@
 
         async function saveScale(step) {
             if (!ownerControls || scaleBusy) return;
-            const next = number(Math.round((scale + step) * 100) / 100, scale, 0.5, 1);
+            const next = number(Math.round((scale + step) * 100) / 100, scale, minimumScale, 1);
             if (next === scale) return;
             scaleBusy = true;
             scaleRevision++;
@@ -186,7 +187,7 @@
                     const savedText = await storage.get(scene, scaleFile);
                     const saved = savedText === null ? null : JSON.parse(savedText);
                     if (!scaleBusy && revision === scaleRevision) {
-                        await applyScale(number(saved?.scale, defaultScale, 0.5, 1));
+                        await applyScale(number(saved?.scale, defaultScale, minimumScale, 1));
                     }
                 } catch (error) {
                     if (!readScale.warned) {
