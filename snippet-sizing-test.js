@@ -167,7 +167,7 @@
             ownerControls.caption.text = "SAVING…";
             try {
                 if (!(await storage.info(scene)).canWrite) throw new Error("World owner access required");
-                await storage.set(scene, scaleFile, { scale: next });
+                await storage.set(scene, scaleFile, JSON.stringify({ scale: next }));
                 await applyScale(next);
             } catch (error) {
                 ownerControls.caption.text = "RESIZE FAILED";
@@ -183,7 +183,8 @@
             const revision = scaleRevision;
             try {
                 try {
-                    const saved = await storage.get(scene, scaleFile);
+                    const savedText = await storage.get(scene, scaleFile);
+                    const saved = savedText === null ? null : JSON.parse(savedText);
                     if (!scaleBusy && revision === scaleRevision) {
                         await applyScale(number(saved?.scale, defaultScale, 0.5, 1));
                     }
